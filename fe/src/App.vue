@@ -1,8 +1,5 @@
-<script setup lang="ts"></script>
-
 <template>
-  <h1>You did it!</h1>
-  <p>Now</p>
+  <router-view />
 </template>
 
-<style scoped></style>
+<script setup lang="ts"></script>
