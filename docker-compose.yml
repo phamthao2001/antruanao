@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: be_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: antruanao
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      # - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - be_network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  backend:
+    build:
+      context: ./be
+      dockerfile: Dockerfile
+    container_name: be_backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      MONGOOSE_URI: mongodb://admin:admin123@mongodb:27017/antruanao?authSource=admin
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./be:/app
+      - /app/node_modules
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - be_network
+
+  frontend:
+    build:
+      context: ./fe
+      dockerfile: Dockerfile
+    container_name: app_frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: http://localhost:3000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./fe:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - be_network
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: be_mongo_express
+    restart: unless-stopped
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin123
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: pass123
+    ports:
+      - "8081:8081"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - be_network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  be_network:
+    driver: bridge

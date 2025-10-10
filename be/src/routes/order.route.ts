@@ -1,13 +1,40 @@
 import express from 'express';
+import { TAllPeopleHardcode } from '../models/order';
 import { order_service } from '../services/order.service';
 
 const route = express.Router();
 
 route.get('/orders', async (req, res, next) => {
   try {
-    const orders = await order_service.getAllOrders();
+    const params = req.query;
+
+    const owner = params.owner as TAllPeopleHardcode | undefined;
+    const list_depend = (<string>(params.list_depend ?? '')).split(',').filter((i) => i);
+
+    const orders = await order_service.getAllOrders({
+      owner,
+      list_depend,
+    });
 
     res.json(orders);
+  } catch (error) {
+    next(error);
+  }
+});
+
+route.post('/orders', async (req, res, next) => {
+  try {
+    const data = req.body;
+    const new_order = await order_service.createOrder(data);
+    res.status(201).json({ message: 'Create order success', order: new_order });
+  } catch (error) {
+    next(error);
+  }
+});
+
+route.put('/orders', async (req, res, next) => {
+  try {
+    res.json({ message: 'PUT order' });
   } catch (error) {
     next(error);
   }
