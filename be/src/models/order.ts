@@ -22,6 +22,7 @@ export type TOrder = {
   description?: string;
   total_paid: number;
   date_order: string;
+  status: 'created' | 'ordered';
 };
 
 export type TOrderDocument = TOrder & mongoose.Document;
@@ -58,6 +59,7 @@ const order_schema = new mongoose.Schema<TOrderDocument>({
   description: { type: String, required: false },
   total_paid: { type: Number, required: true },
   date_order: { type: String, required: true },
+  status: { type: String, required: true, enum: ['created', 'ordered'], default: 'created' },
 });
 
 const order_model = mongoose.model('Order', order_schema);

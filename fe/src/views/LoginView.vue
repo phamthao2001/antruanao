@@ -58,10 +58,10 @@
         <!-- Login Button -->
         <button
           type="submit"
-          :disabled="isLoading"
+          :disabled="loading"
           class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
         >
-          <span v-if="!isLoading" class="flex items-center justify-center gap-2">
+          <span v-if="!loading" class="flex items-center justify-center gap-2">
             <span>Đăng nhập</span>
           </span>
 
@@ -80,25 +80,28 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 
-// Form state
+import router from '@/router'
+import { handleError } from '@/utils/handler-error'
+import { useLoading } from '@/utils/loading'
+import { useLocalStorage } from '@/utils/local-storage'
+
+const { loading } = useLoading()
+const userStorage = useLocalStorage<string>('username')
+
 const loginForm = reactive({
   username: '',
 })
-
-const isLoading = ref(false)
 const rememberMe = ref(false)
 
-// Form validation
 const errors = reactive({
   username: '',
 })
 
-// Methods
 const validateForm = () => {
   errors.username = ''
 
   if (!loginForm.username.trim()) {
-    errors.username = 'Vui lòng nhập tên đăng nhập'
+    errors.username = 'Sai te^n kia`'
     return false
   }
 
@@ -108,16 +111,14 @@ const validateForm = () => {
 const handleLogin = async () => {
   if (!validateForm()) return
 
-  isLoading.value = true
+  if (rememberMe.value) {
+    userStorage.value = loginForm.username.trim()
+  }
 
   try {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    alert('Đăng nhập thành công!')
+    await router.push('/dashboard')
   } catch (error) {
-    alert('Đăng nhập thất bại!' + error)
-  } finally {
-    isLoading.value = false
+    handleError(error as Error)
   }
 }
 </script>

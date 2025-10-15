@@ -1,7 +1,16 @@
 import order_model, { TOrder, TOrderDocument } from '../models/order';
 
-const getAllOrders = async (params: { owner?: string; list_depend?: string[] }) => {
+const getAllOrders = async (params: {
+  owner?: string;
+  list_depend?: string[];
+  from?: string;
+  to?: string;
+}) => {
   const query = order_model.find();
+
+  if (params.from && params.to) {
+    query.where('date_order', { $gte: params.from, $lte: params.to });
+  }
 
   if (params.owner) {
     query.where('owner').equals(params.owner);

@@ -10,10 +10,14 @@ route.get('/orders', async (req, res, next) => {
 
     const owner = params.owner as TAllPeopleHardcode | undefined;
     const list_depend = (<string>(params.list_depend ?? '')).split(',').filter((i) => i);
+    const from = params.from as string | undefined;
+    const to = params.to as string | undefined;
 
     const orders = await order_service.getAllOrders({
       owner,
       list_depend,
+      from,
+      to,
     });
 
     res.json(orders);
