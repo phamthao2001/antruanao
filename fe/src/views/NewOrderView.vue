@@ -197,10 +197,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 import router from '@/router'
 import api from '@/utils/axios'
 import { handleError } from '@/utils/handler-error'
+import { useLocalStorage } from '@/utils/local-storage'
 
 const allPeople = ['thaopv1', 'vunx', 'bacnt'] as const
 type TAllPeopleHardcode = (typeof allPeople)[number]
@@ -224,11 +226,16 @@ export type TOrderForm = {
   list_dep_specific_price: TSpecificPrice[]
 }
 
+const route = useRoute()
+const username = useLocalStorage<TAllPeopleHardcode>('username')
+
+const { date } = route.query
+
 const form = ref<TOrderForm>({
-  owner: '',
+  owner: username.value!,
   description: '',
   total_paid: 0,
-  date_order: new Date().toISOString().slice(0, 10),
+  date_order: <string>date ?? new Date().toISOString().slice(0, 10),
   list_dep_auto_share: [],
   list_dep_specific_price: [],
 })
