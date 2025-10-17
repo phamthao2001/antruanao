@@ -4,6 +4,28 @@ import { order_service } from '../services/order.service';
 
 const route = express.Router();
 
+route.get('/dashboard', async (req, res, next) => {
+  try {
+    const params = req.query;
+
+    const owner = params.owner as TAllPeopleHardcode | undefined;
+    const list_depend = (<string>(params.list_depend ?? '')).split(',').filter((i) => i);
+    const from = params.from as string | undefined;
+    const to = params.to as string | undefined;
+
+    const data = await order_service.dashboard({
+      owner,
+      list_depend,
+      from,
+      to,
+    });
+
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
 route.get('/orders', async (req, res, next) => {
   try {
     const params = req.query;

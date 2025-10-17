@@ -233,7 +233,7 @@ const { date } = route.query
 
 const form = ref<TOrderForm>({
   owner: username.value!,
-  description: '',
+  description: 'ăn trưa',
   total_paid: 0,
   date_order: <string>date ?? new Date().toISOString().slice(0, 10),
   list_dep_auto_share: [],

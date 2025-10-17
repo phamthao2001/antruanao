@@ -88,7 +88,7 @@ const username = useLocalStorage<string>('username')
 
 const { from, to } = route.query
 
-type Data = TOrderForm & {
+export type Data = TOrderForm & {
   _id: string
 }
 
