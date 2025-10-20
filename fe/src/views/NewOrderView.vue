@@ -221,13 +221,13 @@ import { useLocalStorage } from '@/utils/local-storage'
 const allPeople = ['thaopv1', 'vunx', 'bacnt'] as const
 type TAllPeopleHardcode = (typeof allPeople)[number]
 
-type TAutoShare = {
+export type TAutoShare = {
   name_dep: TAllPeopleHardcode
   description_dep?: string
   quantity_dep: number
   state_dep: 'no_paid' | 'paid'
 }
-type TSpecificPrice = {
+export type TSpecificPrice = {
   name_dep: TAllPeopleHardcode
   description_dep?: string
   price_dep: number
