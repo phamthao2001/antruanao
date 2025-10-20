@@ -4,6 +4,8 @@ import { order_service } from '../services/order.service';
 
 const route = express.Router();
 
+const list_share: string[] = [];
+
 route.get('/dashboard', async (req, res, next) => {
   try {
     const params = req.query;
@@ -58,9 +60,80 @@ route.post('/orders', async (req, res, next) => {
   }
 });
 
+route.delete('/orders', async (req, res, next) => {
+  try {
+    const order_id = req.body.order_id as string;
+
+    await order_service.deleteOrder(order_id);
+
+    res.json({ message: 'Delete order success' });
+  } catch (error) {
+    next(error);
+  }
+});
+
 route.put('/orders', async (req, res, next) => {
   try {
     res.json({ message: 'PUT order' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+route.patch('/orders/status', async (req, res, next) => {
+  try {
+    const { order_id, status } = req.body;
+
+    await order_service.updateStatusOrder(order_id, status);
+    res.json({ message: 'PATCH order status', order_id, status });
+  } catch (error) {
+    next(error);
+  }
+});
+
+route.patch('/orders/pay', async (req, res, next) => {
+  try {
+    const { order_id, amount } = req.body;
+    await order_service.payOrder(order_id, amount);
+    res.json({ message: 'PATCH order pay', order_id, amount });
+  } catch (error) {
+    next(error);
+  }
+});
+
+route.patch('/orders/pay-depend', async (req, res, next) => {
+  try {
+    const { order_ids, name_dep } = req.body;
+
+    await order_service.payDepend(order_ids, name_dep);
+    res.json({ message: 'PATCH order pay-depend' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+route.post('/orders/share-link', async (req, res, next) => {
+  try {
+    const { order_id } = req.body;
+
+    if (!list_share.includes(order_id)) {
+      list_share.push(order_id);
+    }
+
+    return res.json({ share_success: true });
+  } catch (error) {
+    next(error);
+  }
+});
+
+route.get('/orders/shared/:orderId', async (req, res, next) => {
+  try {
+    const { orderId } = req.params;
+    if (!list_share.includes(orderId)) {
+      return res.status(403).json({ message: 'Link chia sẻ không hợp lệ hoặc đã bị thu hồi.' });
+    }
+    const order = await order_service.getOrderById(orderId);
+    return res.json(order);
   } catch (error) {
     next(error);
   }

@@ -23,6 +23,11 @@ const router = createRouter({
       name: 'my-orders',
       component: () => import('../views/MyOrdersView.vue'),
     },
+    {
+      path: '/orders/shared/:orderId',
+      name: 'shared-order',
+      component: () => import('../views/SharedOrderView.vue'),
+    },
   ],
 })
 

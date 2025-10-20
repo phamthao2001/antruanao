@@ -111,9 +111,9 @@ const validateForm = () => {
 const handleLogin = async () => {
   if (!validateForm()) return
 
-  if (rememberMe.value) {
-    userStorage.value = loginForm.username.trim()
-  }
+  // if (rememberMe.value) {
+  userStorage.value = loginForm.username.trim()
+  // }
 
   try {
     await router.push('/dashboard')

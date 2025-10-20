@@ -103,6 +103,13 @@
               />
               <span class="ml-2 text-gray-500 text-sm">người</span>
             </div>
+            <!-- Thêm input mô tả cho từng người chia đều -->
+            <input
+              v-model="item.description_dep"
+              type="text"
+              class="border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:border-green-500 bg-white font-medium w-40"
+              placeholder="Mô tả"
+            />
             <button
               type="button"
               @click="removeAutoShare(idx)"
@@ -164,6 +171,13 @@
               />
               <span class="ml-2 text-gray-500 text-sm">đ</span>
             </div>
+            <!-- Thêm input mô tả cho từng người chia giá -->
+            <input
+              v-model="item.description_dep"
+              type="text"
+              class="border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:border-blue-500 bg-white font-medium w-40"
+              placeholder="Mô tả"
+            />
             <button
               type="button"
               @click="removeSpecificPrice(idx)"
@@ -209,11 +223,13 @@ type TAllPeopleHardcode = (typeof allPeople)[number]
 
 type TAutoShare = {
   name_dep: TAllPeopleHardcode
+  description_dep?: string
   quantity_dep: number
   state_dep: 'no_paid' | 'paid'
 }
 type TSpecificPrice = {
   name_dep: TAllPeopleHardcode
+  description_dep?: string
   price_dep: number
   state_dep: 'no_paid' | 'paid'
 }
@@ -222,6 +238,7 @@ export type TOrderForm = {
   description: string
   total_paid: number
   date_order: string
+  status: 'created' | 'ordered' | 'paid'
   list_dep_auto_share: TAutoShare[]
   list_dep_specific_price: TSpecificPrice[]
 }
@@ -236,6 +253,7 @@ const form = ref<TOrderForm>({
   description: 'ăn trưa',
   total_paid: 0,
   date_order: <string>date ?? new Date().toISOString().slice(0, 10),
+  status: 'created',
   list_dep_auto_share: [],
   list_dep_specific_price: [],
 })
@@ -243,6 +261,7 @@ const form = ref<TOrderForm>({
 function addAutoShare() {
   form.value.list_dep_auto_share.push({
     name_dep: '' as TAllPeopleHardcode,
+    description_dep: 'gì cũng được',
     quantity_dep: 1,
     state_dep: 'no_paid',
   })
@@ -254,6 +273,7 @@ function removeAutoShare(idx: number) {
 function addSpecificPrice() {
   form.value.list_dep_specific_price.push({
     name_dep: '' as TAllPeopleHardcode,
+    description_dep: 'gì cũng được',
     price_dep: 0,
     state_dep: 'no_paid',
   })
