@@ -135,6 +135,49 @@ const getOrderById = async (order_id: string): Promise<TOrderDocument | null> =>
   return model;
 };
 
+const updateOrderShared = async (
+  order_id: string,
+  name_dep: string,
+  auto_share: {
+    description_dep: string;
+    quantity_dep: number;
+  } | null,
+  specific_price: {
+    description_dep: string;
+    price_dep: number;
+  } | null,
+): Promise<void> => {
+  const model = await order_model.findById(order_id).exec();
+  if (!model) throw new Error('Order not found');
+
+  // Nếu auto_share là null thì xóa người đó khỏi list_dep_auto_share
+  if (auto_share === null) {
+    model.list_dep_auto_share = model.list_dep_auto_share.filter(
+      (dep) => dep.name_dep !== name_dep,
+    );
+  } else {
+    const dep_auto = model.list_dep_auto_share.find((dep) => dep.name_dep === name_dep);
+    if (dep_auto) {
+      dep_auto.description_dep = auto_share.description_dep;
+      dep_auto.quantity_dep = auto_share.quantity_dep;
+    }
+  }
+
+  // Nếu specific_price là null thì xóa người đó khỏi list_dep_specific_price
+  if (specific_price === null) {
+    model.list_dep_specific_price = model.list_dep_specific_price.filter(
+      (dep) => dep.name_dep !== name_dep,
+    );
+  } else {
+    const dep_specific = model.list_dep_specific_price.find((dep) => dep.name_dep === name_dep);
+    if (dep_specific) {
+      dep_specific.description_dep = specific_price.description_dep;
+      dep_specific.price_dep = specific_price.price_dep;
+    }
+  }
+
+  await model.save();
+};
 export const order_service = {
   getAllOrders,
   createOrder,
@@ -144,4 +187,5 @@ export const order_service = {
   payOrder,
   payDepend,
   getOrderById,
+  updateOrderShared,
 };

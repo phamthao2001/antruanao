@@ -158,7 +158,9 @@
                 class="border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:border-blue-500 bg-white font-medium w-[120px]"
               >
                 <option value="" disabled>Chọn người</option>
-                <option v-for="p in allPeople" :key="p" :value="p">{{ p }}</option>
+                <option v-for="p in allPeople" :key="p" :value="p">
+                  {{ p }}
+                </option>
               </select>
             </div>
             <div class="flex items-center">
@@ -210,7 +212,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import router from '@/router'
@@ -257,6 +259,13 @@ const form = ref<TOrderForm>({
   list_dep_auto_share: [],
   list_dep_specific_price: [],
 })
+
+const list_pp_auto_share = computed(() =>
+  form.value.list_dep_auto_share.map((item) => item.name_dep),
+)
+const list_pp_specific_price = computed(() =>
+  form.value.list_dep_specific_price.map((item) => item.name_dep),
+)
 
 function addAutoShare() {
   form.value.list_dep_auto_share.push({

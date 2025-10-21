@@ -273,7 +273,31 @@ function joinSpecificPrice() {
   specificPrice.value.isCreate = true
 }
 
-function updateOrder() {}
+async function updateOrder() {
+  try {
+    const payload = {
+      name_dep: username.value,
+      auto_share: autoShare.value.isCreate
+        ? {
+            description_dep: autoShare.value.description_dep,
+            quantity_dep: autoShare.value.quantity_dep,
+          }
+        : null,
+      specific_price: specificPrice.value.isCreate
+        ? {
+            description_dep: specificPrice.value.description_dep,
+            price_dep: specificPrice.value.price_dep,
+          }
+        : null,
+    }
+
+    await api.put(`/orders/shared/${orderId}`, payload)
+
+    router.push('/dashboard')
+  } catch (error) {
+    handleError(error as Error)
+  }
+}
 </script>
 
 <style lang="scss"></style>

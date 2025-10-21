@@ -139,4 +139,24 @@ route.get('/orders/shared/:orderId', async (req, res, next) => {
   }
 });
 
+route.put('/orders/shared/:orderId', async (req, res, next) => {
+  try {
+    const { orderId } = req.params;
+    const { name_dep, auto_share, specific_price } = req.body;
+
+    if (!list_share.includes(orderId)) {
+      return res.status(403).json({ message: 'Link chia sẻ không hợp lệ hoặc đã bị thu hồi.' });
+    }
+    const updated_order = await order_service.updateOrderShared(
+      orderId,
+      name_dep,
+      auto_share,
+      specific_price,
+    );
+    return res.json({ message: 'Cập nhật đơn hàng thành công.', order: updated_order });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export const order_router = route;

@@ -121,7 +121,7 @@
                         }}
                       </span>
                     </div>
-                    <div :class="'font-semibold text-green-700'">
+                    <div v-if="order.status === 'paid'" :class="'font-semibold text-green-700'">
                       Tổng tiền:
                       <span class="text-gray-800">
                         {{ formatMoney(order.total_paid) }}
