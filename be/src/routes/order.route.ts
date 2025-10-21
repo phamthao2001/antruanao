@@ -64,6 +64,11 @@ route.delete('/orders', async (req, res, next) => {
   try {
     const order_id = req.body.order_id as string;
 
+    if (list_share.includes(order_id)) {
+      const index = list_share.indexOf(order_id);
+      list_share.splice(index, 1);
+    }
+
     await order_service.deleteOrder(order_id);
 
     res.json({ message: 'Delete order success' });
@@ -94,6 +99,12 @@ route.patch('/orders/status', async (req, res, next) => {
 route.patch('/orders/pay', async (req, res, next) => {
   try {
     const { order_id, amount } = req.body;
+
+    if (list_share.includes(order_id)) {
+      const index = list_share.indexOf(order_id);
+      list_share.splice(index, 1);
+    }
+
     await order_service.payOrder(order_id, amount);
     res.json({ message: 'PATCH order pay', order_id, amount });
   } catch (error) {
