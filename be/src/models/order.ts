@@ -1,7 +1,21 @@
 import mongoose from 'mongoose';
 
 // #region type order
-export const all_people_hardcode = ['thaopv1', 'vunx', 'bacnt'] as const;
+export const all_people_hardcode = [
+  'vunx',
+  'bacnt',
+  'thaopv1',
+  'hiepbh',
+  'thanhnx',
+  'longnt',
+  'nghiapd',
+  'huydt',
+  'hieunm2',
+  'hungdv',
+  'chungld',
+  'huydvq',
+  'namtv',
+] as const;
 export type TAllPeopleHardcode = (typeof all_people_hardcode)[number];
 
 export type TAutoShare = {

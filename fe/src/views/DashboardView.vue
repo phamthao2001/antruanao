@@ -51,13 +51,38 @@
           Tuần sau &rarr;
         </button>
         <!-- Tên người dùng luôn ở cuối cùng -->
-        <div class="flex items-center gap-2 ml-6">
+        <div
+          class="flex items-center gap-2 ml-6 relative"
+          @click="showUserDropdown = !showUserDropdown"
+        >
           <div
             class="w-9 h-9 rounded-lg bg-gradient-to-r from-blue-500 to-blue-400 flex items-center justify-center text-white font-bold"
           >
             {{ username?.[0] ?? '?' }}
           </div>
-          <div class="text-sm font-medium text-gray-700">{{ username }}</div>
+          <div class="text-sm font-medium text-gray-700 cursor-pointer">
+            {{ username }}
+            <svg
+              class="inline w-4 h-4 ml-1 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div
+            v-if="showUserDropdown"
+            class="absolute top-12 right-0 bg-white border border-gray-200 rounded-lg shadow-lg min-w-[140px] z-50"
+          >
+            <button
+              class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 font-semibold"
+              @click="logout"
+            >
+              Đăng xuất
+            </button>
+          </div>
         </div>
       </div>
     </header>
@@ -493,14 +518,23 @@
         <div class="font-semibold text-lg mb-4 text-fuchsia-700">
           Quét mã QR để thanh toán cho <span class="text-orange-700">{{ payingOwner }}</span>
         </div>
-        <img
-          :src="ownerQRUrl"
-          alt="QR thanh toán"
-          class="w-96 h-96 object-contain mb-4 border-2 border-gray-400 rounded-xl"
-        />
-        <div class="text-sm text-gray-600 mb-2">
-          Vui lòng sử dụng app ngân hàng để quét mã và chuyển khoản cho chủ đơn.
-        </div>
+        <template v-if="ownerQRUrl">
+          <img
+            :src="ownerQRUrl"
+            alt="QR thanh toán"
+            class="w-96 h-96 object-contain mb-4 border-2 border-gray-400 rounded-xl"
+          />
+          <div class="text-sm text-gray-600 mb-2">
+            Vui lòng sử dụng app ngân hàng để quét mã và chuyển khoản cho chủ đơn.
+          </div>
+        </template>
+        <template v-else>
+          <div class="text-base text-red-600 font-semibold mb-6 text-center">
+            Không tồn tại mã QR của chủ đơn.<br />
+            Vui lòng liên hệ <span class="font-bold text-orange-700">{{ payingOwner }}</span> để xin
+            thông tin chuyển tiền!
+          </div>
+        </template>
         <div class="text-xs text-red-500 font-semibold mb-6">
           NOTE: Chuyển thành công hãy click "Tôi đã chuyển" để cập nhật trạng thái.
         </div>
@@ -532,18 +566,27 @@
         <div class="font-semibold text-lg mb-4 text-yellow-700">
           Quét mã QR để thanh toán cho <span class="text-orange-700">{{ payQROwner }}</span>
         </div>
-        <img
-          :src="payQRUrl"
-          alt="QR thanh toán"
-          class="w-96 h-96 object-contain mb-4 border-2 border-gray-400 rounded-xl"
-        />
-        <div class="text-base font-semibold text-blue-700 mb-2">
-          Số tiền cần thanh toán:
-          <span class="text-gray-800">{{ formatMoney(payQRAmount) }} đ</span>
-        </div>
-        <div class="text-sm text-gray-600 mb-2">
-          Vui lòng sử dụng app ngân hàng để quét mã và chuyển khoản cho chủ đơn.
-        </div>
+        <template v-if="payQRUrl">
+          <img
+            :src="payQRUrl"
+            alt="QR thanh toán"
+            class="w-96 h-96 object-contain mb-4 border-2 border-gray-400 rounded-xl"
+          />
+          <div class="text-base font-semibold text-blue-700 mb-2">
+            Số tiền cần thanh toán:
+            <span class="text-gray-800">{{ formatMoney(payQRAmount) }} đ</span>
+          </div>
+          <div class="text-sm text-gray-600 mb-2">
+            Vui lòng sử dụng app ngân hàng để quét mã và chuyển khoản cho chủ đơn.
+          </div>
+        </template>
+        <template v-else>
+          <div class="text-base text-red-600 font-semibold mb-6 text-center">
+            Không tồn tại mã QR của chủ đơn.<br />
+            Vui lòng liên hệ <span class="font-bold text-orange-700">{{ payQROwner }}</span> để xin
+            thông tin chuyển tiền!
+          </div>
+        </template>
         <div class="text-xs text-red-500 font-semibold mb-6">
           NOTE: Chuyển thành công hãy click "Tôi đã chuyển" để cập nhật trạng thái.
         </div>
@@ -575,7 +618,7 @@ import router from '@/router'
 import api from '@/utils/axios'
 import { handleError } from '@/utils/handler-error'
 import { useLocalStorage } from '@/utils/local-storage'
-import { nghiapd_context_qr } from '@/utils/qr'
+import { QR_CONTEXT } from '@/utils/qr'
 
 const username = useLocalStorage<string>('username')
 
@@ -798,9 +841,8 @@ const listOrderDependNeedPaid = computed(() => {
 })
 
 async function onSumaryPay() {
-  showSummaryPay.value = true
-
   await fetchOrders()
+  showSummaryPay.value = true
 }
 
 const showOwnerQRPopup = ref(false)
@@ -810,11 +852,14 @@ const payingOwner = ref('')
 function payAllForOwner(owner: string) {
   const listDepend = listOrderDependNeedPaid.value[owner] || []
 
-  let qr = nghiapd_context_qr.replace(/{#user}/g, username.value ?? '')
-  qr = qr.replace(
-    /{#amount}/g,
-    (listDepend.reduce((sum, order) => sum + getMyPrice(order), 0) ?? 0).toString(),
-  )
+  let qr = QR_CONTEXT[owner] ?? ''
+  if (qr) {
+    qr = qr.replace(/{#user}/g, username.value ?? '')
+    qr = qr.replace(
+      /{#amount}/g,
+      (listDepend.reduce((sum, order) => sum + getMyPrice(order), 0) ?? 0).toString(),
+    )
+  }
 
   ownerQRUrl.value = qr
   payingOwner.value = owner
@@ -854,8 +899,11 @@ function showPayQR(order: Data) {
   payQROrderId.value = order._id
   payQROwner.value = order.owner
 
-  let qr = nghiapd_context_qr.replace(/{#user}/g, username.value ?? '')
-  qr = qr.replace(/{#amount}/g, amount.toString())
+  let qr = QR_CONTEXT[order.owner] ?? ''
+  if (qr) {
+    qr = qr.replace(/{#user}/g, username.value ?? '')
+    qr = qr.replace(/{#amount}/g, amount.toString())
+  }
   payQRUrl.value = qr
   showPayQRPopup.value = true
 }
@@ -889,4 +937,10 @@ async function shareOrderLink(orderId: string) {
 }
 
 onMounted(fetchOrders)
+
+const showUserDropdown = ref(false)
+function logout() {
+  username.value = null
+  router.push('/login')
+}
 </script>

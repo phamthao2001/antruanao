@@ -87,6 +87,21 @@ import { useLocalStorage } from '@/utils/local-storage'
 
 const { loading } = useLoading()
 const userStorage = useLocalStorage<string>('username')
+const allPeople = [
+  'vunx',
+  'bacnt',
+  'thaopv1',
+  'hiepbh',
+  'thanhnx',
+  'longnt',
+  'nghiapd',
+  'huydt',
+  'hieunm2',
+  'hungdv',
+  'chungld',
+  'huydvq',
+  'namtv',
+]
 
 const loginForm = reactive({
   username: '',
@@ -100,7 +115,7 @@ const errors = reactive({
 const validateForm = () => {
   errors.username = ''
 
-  if (!loginForm.username.trim()) {
+  if (!loginForm.username.trim() || !allPeople.includes(loginForm.username.trim())) {
     errors.username = 'Sai te^n kia`'
     return false
   }

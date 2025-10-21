@@ -212,7 +212,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import router from '@/router'
@@ -220,7 +220,21 @@ import api from '@/utils/axios'
 import { handleError } from '@/utils/handler-error'
 import { useLocalStorage } from '@/utils/local-storage'
 
-const allPeople = ['thaopv1', 'vunx', 'bacnt'] as const
+const allPeople = [
+  'vunx',
+  'bacnt',
+  'thaopv1',
+  'hiepbh',
+  'thanhnx',
+  'longnt',
+  'nghiapd',
+  'huydt',
+  'hieunm2',
+  'hungdv',
+  'chungld',
+  'huydvq',
+  'namtv',
+] as const
 type TAllPeopleHardcode = (typeof allPeople)[number]
 
 export type TAutoShare = {
@@ -259,13 +273,6 @@ const form = ref<TOrderForm>({
   list_dep_auto_share: [],
   list_dep_specific_price: [],
 })
-
-const list_pp_auto_share = computed(() =>
-  form.value.list_dep_auto_share.map((item) => item.name_dep),
-)
-const list_pp_specific_price = computed(() =>
-  form.value.list_dep_specific_price.map((item) => item.name_dep),
-)
 
 function addAutoShare() {
   form.value.list_dep_auto_share.push({

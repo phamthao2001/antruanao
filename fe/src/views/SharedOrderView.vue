@@ -77,7 +77,7 @@
         </ul>
       </div>
     </div>
-    <!-- Phần của bạn: autoShare và specificPrice theo hàng dọc -->
+    <!-- Phần của bạn: autoShare_list và specificPrice_list theo hàng dọc -->
     <div class="mb-8">
       <div class="font-semibold text-gray-700 mb-2">
         Phần của bạn: <span class="text-blue-700">{{ username }}</span>
@@ -86,76 +86,76 @@
         <!-- Chia đều (auto share) -->
         <div class="flex flex-col gap-2 border rounded-lg p-4 bg-green-50">
           <label class="font-medium text-green-700 mb-1">Chia đều (auto share)</label>
-          <template v-if="autoShare.isCreate">
-            <input
-              v-model="autoShare.quantity_dep"
-              type="number"
-              min="1"
-              class="border border-gray-300 rounded-lg px-2 py-1 w-32"
-              placeholder="Số lượng"
-            />
-            <input
-              v-model="autoShare.description_dep"
-              type="text"
-              class="border border-gray-300 rounded-lg px-2 py-1 w-full"
-              placeholder="Mô tả (tuỳ chọn)"
-            />
-            <div class="flex gap-2 mt-2">
+          <ul>
+            <li
+              v-for="(item, idx) in autoShare_list"
+              :key="idx"
+              class="flex items-center gap-2 mb-2"
+            >
+              <input
+                v-model="item.quantity_dep"
+                type="number"
+                min="1"
+                class="border border-gray-300 rounded-lg px-2 py-1 w-24"
+                placeholder="Số lượng"
+              />
+              <input
+                v-model="item.description_dep"
+                type="text"
+                class="border border-gray-300 rounded-lg px-2 py-1 w-48"
+                placeholder="Mô tả (tuỳ chọn)"
+              />
               <button
-                class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg shadow transition w-fit"
-                @click="removeMyAutoShare"
+                class="bg-red-500 hover:bg-red-600 text-white font-semibold px-3 py-1 rounded-lg shadow transition"
+                @click="autoShare_list.splice(idx, 1)"
               >
-                Xóa phần của bạn
+                Xóa
               </button>
-            </div>
-          </template>
-          <template v-else>
-            <div class="flex gap-2 mt-2">
-              <button
-                class="bg-green-500 hover:bg-green-600 text-white font-semibold px-4 py-2 rounded-lg shadow transition w-fit"
-                @click="joinAutoShare"
-              >
-                Thêm bản thân vào chia đều
-              </button>
-            </div>
-          </template>
+            </li>
+          </ul>
+          <button
+            class="bg-green-500 hover:bg-green-600 text-white font-semibold px-4 py-2 rounded-lg shadow transition w-fit mt-2"
+            @click="autoShare_list.push({ quantity_dep: 1, description_dep: 'gì cũng được' })"
+          >
+            Thêm bản thân vào chia đều
+          </button>
         </div>
         <!-- Chia theo giá (specific price) -->
         <div class="flex flex-col gap-2 border rounded-lg p-4 bg-blue-50">
           <label class="font-medium text-blue-700 mb-1">Chia theo giá (specific price)</label>
-          <template v-if="specificPrice.isCreate">
-            <input
-              v-model.number="specificPrice.price_dep"
-              type="number"
-              min="0"
-              class="border border-gray-300 rounded-lg px-2 py-1 w-32"
-              placeholder="Số tiền"
-            />
-            <input
-              v-model="specificPrice.description_dep"
-              type="text"
-              class="border border-gray-300 rounded-lg px-2 py-1 w-full"
-              placeholder="Mô tả (tuỳ chọn)"
-            />
-            <div class="flex gap-2 mt-2">
+          <ul>
+            <li
+              v-for="(item, idx) in specificPrice_list"
+              :key="idx"
+              class="flex items-center gap-2 mb-2"
+            >
+              <input
+                v-model.number="item.price_dep"
+                type="number"
+                min="0"
+                class="border border-gray-300 rounded-lg px-2 py-1 w-24"
+                placeholder="Số tiền"
+              />
+              <input
+                v-model="item.description_dep"
+                type="text"
+                class="border border-gray-300 rounded-lg px-2 py-1 w-48"
+                placeholder="Mô tả (tuỳ chọn)"
+              />
               <button
-                class="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg shadow transition w-fit"
-                @click="removeMySpecificPrice"
+                class="bg-red-500 hover:bg-red-600 text-white font-semibold px-3 py-1 rounded-lg shadow transition"
+                @click="specificPrice_list.splice(idx, 1)"
               >
-                Xóa phần của bạn
+                Xóa
               </button>
-            </div>
-          </template>
-          <template v-else>
-            <div class="flex gap-2 mt-2">
-              <button
-                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg shadow transition w-fit"
-                @click="joinSpecificPrice"
-              >
-                Thêm bản thân vào chia theo giá
-              </button>
-            </div>
-          </template>
+            </li>
+          </ul>
+          <button
+            class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg shadow transition w-fit mt-2"
+            @click="specificPrice_list.push({ price_dep: 0, description_dep: 'gì cũng được' })"
+          >
+            Thêm bản thân vào chia theo giá
+          </button>
         </div>
       </div>
     </div>
@@ -191,48 +191,40 @@ function formatMoney(val: number) {
   return val?.toLocaleString('vi-VN')
 }
 
-const autoShare = ref<{
-  description_dep?: string
-  quantity_dep: number
-  isCreate: boolean
-}>({
-  description_dep: 'gì cũng được',
-  quantity_dep: 1,
-  isCreate: false,
-})
-const specificPrice = ref<{
-  description_dep?: string
-  price_dep: number
-  isCreate: boolean
-}>({
-  description_dep: 'gì cũng được',
-  price_dep: 0,
-  isCreate: false,
-})
+const autoShare_list = ref<
+  {
+    description_dep?: string
+    quantity_dep: number
+  }[]
+>([])
+const specificPrice_list = ref<
+  {
+    description_dep?: string
+    price_dep: number
+  }[]
+>([])
 
 onMounted(async () => {
   try {
     const res: Data = await api.get(`/orders/shared/${orderId}`)
 
-    const auto = (res.list_dep_auto_share || []).find((item) => item.name_dep === username.value)
-    const specific = (res.list_dep_specific_price || []).find(
+    const auto = (res.list_dep_auto_share || []).filter((item) => item.name_dep === username.value)
+    const specific = (res.list_dep_specific_price || []).filter(
       (item) => item.name_dep === username.value,
     )
 
     if (auto) {
-      autoShare.value = {
-        description_dep: auto.description_dep || '',
-        quantity_dep: auto.quantity_dep,
-        isCreate: true,
-      }
+      autoShare_list.value = auto.map((item) => ({
+        description_dep: item.description_dep || '',
+        quantity_dep: item.quantity_dep,
+      }))
     }
 
     if (specific) {
-      specificPrice.value = {
-        description_dep: specific.description_dep || '',
-        price_dep: specific.price_dep,
-        isCreate: true,
-      }
+      specificPrice_list.value = specific.map((item) => ({
+        description_dep: item.description_dep || '',
+        price_dep: item.price_dep,
+      }))
     }
 
     res.list_dep_auto_share = res.list_dep_auto_share.filter(
@@ -249,50 +241,20 @@ onMounted(async () => {
   }
 })
 
-function removeMyAutoShare() {
-  autoShare.value = {
-    description_dep: 'gì cũng được',
-    quantity_dep: 1,
-    isCreate: false,
-  }
-}
-
-function removeMySpecificPrice() {
-  specificPrice.value = {
-    description_dep: 'gì cũng được',
-    price_dep: 0,
-    isCreate: false,
-  }
-}
-
-function joinAutoShare() {
-  autoShare.value.isCreate = true
-}
-
-function joinSpecificPrice() {
-  specificPrice.value.isCreate = true
-}
-
 async function updateOrder() {
   try {
     const payload = {
       name_dep: username.value,
-      auto_share: autoShare.value.isCreate
-        ? {
-            description_dep: autoShare.value.description_dep,
-            quantity_dep: autoShare.value.quantity_dep,
-          }
-        : null,
-      specific_price: specificPrice.value.isCreate
-        ? {
-            description_dep: specificPrice.value.description_dep,
-            price_dep: specificPrice.value.price_dep,
-          }
-        : null,
+      auto_share: autoShare_list.value.map((item) => ({
+        description_dep: item.description_dep,
+        quantity_dep: item.quantity_dep,
+      })),
+      specific_price: specificPrice_list.value.map((item) => ({
+        description_dep: item.description_dep,
+        price_dep: item.price_dep,
+      })),
     }
-
     await api.put(`/orders/shared/${orderId}`, payload)
-
     router.push('/dashboard')
   } catch (error) {
     handleError(error as Error)

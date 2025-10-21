@@ -1,4 +1,4 @@
-import order_model, { TOrder, TOrderDocument } from '../models/order';
+import order_model, { TAutoShare, TOrder, TOrderDocument, TSpecificPrice } from '../models/order';
 
 const getAllOrders = async (params: {
   owner?: string;
@@ -141,40 +141,42 @@ const updateOrderShared = async (
   auto_share: {
     description_dep: string;
     quantity_dep: number;
-  } | null,
+  }[],
   specific_price: {
     description_dep: string;
     price_dep: number;
-  } | null,
+  }[],
 ): Promise<void> => {
   const model = await order_model.findById(order_id).exec();
   if (!model) throw new Error('Order not found');
 
-  // Nếu auto_share là null thì xóa người đó khỏi list_dep_auto_share
-  if (auto_share === null) {
-    model.list_dep_auto_share = model.list_dep_auto_share.filter(
-      (dep) => dep.name_dep !== name_dep,
-    );
-  } else {
-    const dep_auto = model.list_dep_auto_share.find((dep) => dep.name_dep === name_dep);
-    if (dep_auto) {
-      dep_auto.description_dep = auto_share.description_dep;
-      dep_auto.quantity_dep = auto_share.quantity_dep;
-    }
-  }
+  model.list_dep_auto_share = model.list_dep_auto_share.filter((dep) => dep.name_dep !== name_dep);
+  model.list_dep_auto_share.push(
+    ...auto_share.map(
+      (item) =>
+        ({
+          name_dep,
+          description_dep: item.description_dep,
+          quantity_dep: item.quantity_dep,
+          state_dep: 'no_paid',
+        }) as TAutoShare,
+    ),
+  );
 
-  // Nếu specific_price là null thì xóa người đó khỏi list_dep_specific_price
-  if (specific_price === null) {
-    model.list_dep_specific_price = model.list_dep_specific_price.filter(
-      (dep) => dep.name_dep !== name_dep,
-    );
-  } else {
-    const dep_specific = model.list_dep_specific_price.find((dep) => dep.name_dep === name_dep);
-    if (dep_specific) {
-      dep_specific.description_dep = specific_price.description_dep;
-      dep_specific.price_dep = specific_price.price_dep;
-    }
-  }
+  model.list_dep_specific_price = model.list_dep_specific_price.filter(
+    (dep) => dep.name_dep !== name_dep,
+  );
+  model.list_dep_specific_price.push(
+    ...specific_price.map(
+      (item) =>
+        ({
+          name_dep,
+          description_dep: item.description_dep,
+          price_dep: item.price_dep,
+          state_dep: 'no_paid',
+        }) as TSpecificPrice,
+    ),
+  );
 
   await model.save();
 };
